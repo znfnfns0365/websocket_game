@@ -1,5 +1,6 @@
 import { CLIENT_VERSION } from './Constants.js';
 import { scoreStop } from './Score.js';
+import { highScoreRenewal } from './index.js';
 
 const socket = io('http://localhost:3000', {
   query: {
@@ -9,7 +10,10 @@ const socket = io('http://localhost:3000', {
 
 let userId = null;
 socket.on('response', (data) => {
-  console.log(data);
+  if (data.highScore) {
+    console.log(data.broadcast);
+    highScoreRenewal();
+  } else console.log(data);
   if (data.status === 'false') scoreStop();
 });
 

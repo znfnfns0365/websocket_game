@@ -9,6 +9,7 @@ class Score {
     this.canvas = ctx.canvas;
     this.scaleRatio = scaleRatio;
     this.gameAssets = {};
+    this.highScore = 0;
     this.loadGameAssets();
   }
 
@@ -16,7 +17,8 @@ class Score {
     this.gameAssets = await fetchGameAssets();
   }
 
-  update(deltaTime) {
+  async update(deltaTime) {
+    await this.loadGameAssets();
     const { stages } = this.gameAssets;
     this.score += deltaTime * 0.001 * stages.data[this.stageChange].scorePerSecond * scoreCancel;
     for (let i = 1; i < stages.data.length; i++) {
@@ -35,6 +37,7 @@ class Score {
 
   getItem(itemId) {
     const { items } = this.gameAssets;
+    console.log(this.gameAssets);
     sendEvent(4, { itemId });
     console.log(`item${items.data[itemId - 1].id}: `, items.data[itemId - 1].score);
     this.score += items.data[itemId - 1].score * scoreCancel;
@@ -46,11 +49,10 @@ class Score {
     scoreCancel = 1;
   }
 
-  setHighScore() {
-    const highScore = Number(localStorage.getItem(this.HIGH_SCORE_KEY));
-    if (this.score > highScore) {
-      localStorage.setItem(this.HIGH_SCORE_KEY, Math.floor(this.score));
-    }
+  async getHighScore() {
+    await this.loadGameAssets();
+    this.highScore = Math.floor(this.gameAssets.highScore.highScore);
+    this.draw();
   }
 
   getScore() {
@@ -58,7 +60,7 @@ class Score {
   }
 
   draw() {
-    const highScore = Number(localStorage.getItem(this.HIGH_SCORE_KEY));
+    const highScore = this.highScore;
     const y = 20 * this.scaleRatio;
 
     const fontSize = 20 * this.scaleRatio;

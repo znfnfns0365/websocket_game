@@ -1,4 +1,4 @@
-import { getGameAssets } from '../init/assets.js';
+import { getGameAssets, highScoreRenewal } from '../init/assets.js';
 import { clearItem, getItem } from '../models/item.model.js';
 import { clearStage, getStage, setStage } from '../models/stage.model.js';
 
@@ -13,7 +13,7 @@ export const gameStart = (uuid, payload) => {
 };
 
 export const gameEnd = (uuid, payload) => {
-  const { items, stages } = getGameAssets();
+  const { items, stages, highScore } = getGameAssets();
   console.log(uuid, payload);
   const { timestamp: gameEndTime, score } = payload;
   const myStages = getStage(uuid);
@@ -54,6 +54,14 @@ export const gameEnd = (uuid, payload) => {
 
   //DB에 저장한다고 가정한다면 여기서 저장
   //setResult(userId, score, timestamp)
-
-  return { status: 'success', message: `Game ended`, score };
+  if (highScore.highScore < totalScore) {
+    highScoreRenewal(totalScore);
+    return {
+      status: 'success',
+      message: `Game ended`,
+      broadcast: `${uuid} has renew the highest score`,
+      highScore: totalScore,
+    };
+  }
+  return { status: 'success', message: `Game ended` };
 };

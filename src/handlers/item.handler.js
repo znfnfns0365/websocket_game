@@ -2,13 +2,14 @@ import { getGameAssets } from '../init/assets.js';
 import { addItem, getItem } from '../models/item.model.js';
 import { getStage } from '../models/stage.model.js';
 
-export const eatItem = (userId, payload) => {
+export const eatItem = async (userId, payload) => {
   const { itemUnlocks } = getGameAssets();
   const serverTime = Date.now();
 
   // 검증
   // 아이템Id가 현재 스테이지에 나올 수 있는지
-  const stages = getStage(userId);
+  const stages = await getStage(userId);
+  console.log(stages);
   const currentStage = stages[stages.length - 1].id;
   for (let i = 0; i < itemUnlocks.data.length; i++) {
     if (itemUnlocks.data[i].stage_id === currentStage) {

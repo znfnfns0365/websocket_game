@@ -1,3 +1,4 @@
+import { json } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -24,13 +25,38 @@ const readFileAsync = (filename) => {
 
 export const loadGameAssets = async () => {
   try {
-    const [stages, items, itemUnlocks] = await Promise.all([
+    const [stages, items, itemUnlocks, highScore] = await Promise.all([
       readFileAsync('stage.json'),
       readFileAsync('item.json'),
       readFileAsync('item_unlock.json'),
+      readFileAsync('high_score.json'),
     ]);
-    gameAssets = { stages, items, itemUnlocks };
+    gameAssets = { stages, items, itemUnlocks, highScore };
     return gameAssets;
+  } catch (e) {
+    throw new Error(e.message);
+  }
+};
+
+const writeFileAsync = (filename, data) => {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(path.join(basePath, filename), data, 'utf8', (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+};
+
+export const highScoreRenewal = async (newHighScore) => {
+  try {
+    const highScore = await readFileAsync('high_score.json');
+    highScore.highScore = newHighScore;
+
+    const str = JSON.stringify(highScore, null, 2);
+    await writeFileAsync('high_score.json', str);
   } catch (e) {
     throw new Error(e.message);
   }

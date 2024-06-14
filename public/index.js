@@ -152,6 +152,7 @@ function showStartGameText() {
   const x = canvas.width / 14;
   const y = canvas.height / 2;
   ctx.fillText('Tap Screen or Press Space To Start', x, y);
+  highScoreRenewal();
 }
 
 function updateGameSpeed(deltaTime) {
@@ -163,6 +164,7 @@ function reset() {
   gameover = false;
   waitingToStart = false;
 
+  highScoreRenewal();
   ground.reset();
   cactiController.reset();
   score.reset();
@@ -216,7 +218,8 @@ function gameLoop(currentTime) {
   if (!gameover && cactiController.collideWith(player)) {
     gameover = true;
     sendEvent(3, { timestamp: Date.now(), score: score.score });
-    score.setHighScore();
+    highScoreRenewal();
+    score.getHighScore();
     setupGameReset();
   }
   const collideWithItem = itemController.collideWith(player);
@@ -247,3 +250,7 @@ function gameLoop(currentTime) {
 requestAnimationFrame(gameLoop);
 
 window.addEventListener('keyup', reset, { once: true });
+
+export function highScoreRenewal() {
+  score.getHighScore();
+}
